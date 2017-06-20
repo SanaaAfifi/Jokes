@@ -18,9 +18,10 @@ namespace Jokes.APIs
         {
             // Web API configuration and services
             // Configure Web API to use only bearer token authentication.
-            EnableCorsAttribute cors = new EnableCorsAttribute("*", "*", "*");
 
-            config.EnableCors(cors);
+           /* EnableCorsAttribute cors = new EnableCorsAttribute("*", "*", "*");
+
+            config.EnableCors(cors);*/
 
             config.SuppressDefaultHostAuthentication();
             config.Filters.Add(new HostAuthenticationFilter(OAuthDefaults.AuthenticationType));
@@ -38,7 +39,6 @@ namespace Jokes.APIs
             routeTemplate: "{controller}/{action}/id"
 
             );
-
 
             var json = config.Formatters.JsonFormatter;
             json.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;

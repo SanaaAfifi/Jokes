@@ -13,7 +13,6 @@ using Jokes.Entities;
 
 namespace Jokes.APIs.Controllers
 {
-    [Authorize]
     public class PostedJokesController : ApiController
     {
         private JokesDb db = new JokesDb();
@@ -118,9 +117,9 @@ namespace Jokes.APIs.Controllers
 
         // PUT: api/PostedJokes/5
         [HttpPut]
-        [Route("~/api/PostedJokes/Vote/{Id:int}/{up:bool}")]
+        [Route("~/api/PostedJokes/Vote/{Id:int}/{up:bool}/{userName}")]
         [ResponseType(typeof(void))]
-        public IHttpActionResult Vote(int id, bool up)
+        public IHttpActionResult Vote(int id, bool up, string userName)
         {
             try
             {
@@ -135,7 +134,7 @@ namespace Jokes.APIs.Controllers
                     var vote = new Vote();
                     vote.Joke = currentJoke;
                     vote.PostedDate = DateTime.Now;
-                    vote.VotedBy = account.UserIdentityId;
+                    vote.VotedBy = userName;
                     db.Votes.Add(vote);
                     db.SaveChanges();
 
@@ -214,8 +213,8 @@ namespace Jokes.APIs.Controllers
             postedJoke.PostedDate = DateTime.Now;
             postedJoke.DownVotes = 0;
             postedJoke.UpVotes = 0;
-            postedJoke.IsHideen = false;
-            postedJoke.PostedBy =  account.UserIdentityId;
+            postedJoke.IsHideen =false;
+            postedJoke.PostedBy =  postedJoke.PostedBy;
             
             db.PostedJokes.Add(postedJoke);
             db.SaveChanges();

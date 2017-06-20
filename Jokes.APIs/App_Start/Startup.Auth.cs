@@ -11,6 +11,7 @@ using Owin;
 using Jokes.APIs.Providers;
 using Jokes.APIs.Models;
 using Jokes.APIs.DataContext;
+using Microsoft.Owin.Cors;
 
 namespace Jokes.APIs
 {
@@ -23,6 +24,8 @@ namespace Jokes.APIs
         // For more information on configuring authentication, please visit https://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
+            app.UseCors(CorsOptions.AllowAll);
+
             // Configure the db context and user manager to use a single instance per request
             app.CreatePerOwinContext(IdentityDb.Create);
             app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
