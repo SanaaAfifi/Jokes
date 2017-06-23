@@ -10,6 +10,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using Jokes.APIs.DataContext;
 using Jokes.Entities;
+using System.Web;
 
 namespace Jokes.APIs.Controllers
 {
@@ -22,7 +23,7 @@ namespace Jokes.APIs.Controllers
         [AllowAnonymousAttribute]
         public IQueryable<PostedJoke> GetPostedJokes()
         {
-            return db.PostedJokes.Where(a=>a.IsHideen == false)
+            return db.PostedJokes.Where(a => a.IsHideen == false)
                  .OrderByDescending(a => a.PostedDate);
         }
 
@@ -88,7 +89,7 @@ namespace Jokes.APIs.Controllers
 
         // PUT: api/PostedJokes/5
 
-        [Authorize(Roles ="Administrator")]
+        [Authorize(Roles = "Administrator")]
         [HttpPut]
         [Route("~/api/PostedJokes/Hide/{Id:int}")]
         [ResponseType(typeof(void))]
@@ -138,7 +139,7 @@ namespace Jokes.APIs.Controllers
                     db.Votes.Add(vote);
                     db.SaveChanges();
 
-                    return Ok(new { Success = true, Content = "Joke Hidden" });
+                    return Ok(new { Success = true, Content ="Vote Added" });
                 }
                 else
                 {
@@ -146,7 +147,7 @@ namespace Jokes.APIs.Controllers
                 }
             }
             catch (DbUpdateConcurrencyException)
-            {    
+            {
                 if (!PostedJokeExists(id))
                 {
                     return NotFound();
@@ -160,23 +161,23 @@ namespace Jokes.APIs.Controllers
 
         // PUT: api/PostedJokes/5
         [Authorize]
-        [HttpPut]
-        [Route("~/api/PostedJokes/PostComment/id/comment")]
+        [HttpPost]
+        [Route("~/api/PostedJokes/PostComment/{jokeId:int}")]
         [ResponseType(typeof(void))]
-        public IHttpActionResult PostComment(int id, string content)
+        public IHttpActionResult PostComment([FromBody]Comment newComment,int jokeId)
         {
             try
             {
-                var currentJoke = db.PostedJokes.Find(id);
-                if (currentJoke != null && !string.IsNullOrEmpty(content))
+                var currentJoke = db.PostedJokes.Find(jokeId);
+                if (currentJoke != null && !string.IsNullOrEmpty(newComment.Content))
                 {
-               
+
                     var comment = new Comment();
                     comment.Joke = currentJoke;
                     comment.PostedDate = DateTime.Now;
                     comment.IsHideen = false;
-                    comment.Content = content;
-                    comment.PostedBy = account.UserIdentityId;
+                    comment.Content = newComment.Content;
+                    comment.PostedBy =newComment.PostedBy;
                     db.Comments.Add(comment);
                     db.SaveChanges();
 
@@ -189,7 +190,7 @@ namespace Jokes.APIs.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!PostedJokeExists(id))
+                if (!PostedJokeExists(jokeId))
                 {
                     return NotFound();
                 }
@@ -213,9 +214,9 @@ namespace Jokes.APIs.Controllers
             postedJoke.PostedDate = DateTime.Now;
             postedJoke.DownVotes = 0;
             postedJoke.UpVotes = 0;
-            postedJoke.IsHideen =false;
-            postedJoke.PostedBy =  postedJoke.PostedBy;
-            
+            postedJoke.IsHideen = false;
+            postedJoke.PostedBy = postedJoke.PostedBy;
+
             db.PostedJokes.Add(postedJoke);
             db.SaveChanges();
 
@@ -223,20 +224,20 @@ namespace Jokes.APIs.Controllers
         }
 
         // POST: api/PostedJokes
-       /* [ResponseType(typeof(PostedJoke))]
-        public IHttpActionResult PostPostedJoke(PostedJoke postedJoke)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        /* [ResponseType(typeof(PostedJoke))]
+         public IHttpActionResult PostPostedJoke(PostedJoke postedJoke)
+         {
+             if (!ModelState.IsValid)
+             {
+                 return BadRequest(ModelState);
+             }
 
-            db.PostedJokes.Add(postedJoke);
-            db.SaveChanges();
+             db.PostedJokes.Add(postedJoke);
+             db.SaveChanges();
 
-            return CreatedAtRoute("DefaultApi", new { id = postedJoke.JokeId }, postedJoke);
-        }
-        */
+             return CreatedAtRoute("DefaultApi", new { id = postedJoke.JokeId }, postedJoke);
+         }
+         */
         // DELETE: api/PostedJokes/5
         [ResponseType(typeof(PostedJoke))]
         public IHttpActionResult DeletePostedJoke(int id)
@@ -266,5 +267,5 @@ namespace Jokes.APIs.Controllers
         {
             return db.PostedJokes.Count(e => e.JokeId == id) > 0;
         }
-    }
+}
 }
